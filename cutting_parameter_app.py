@@ -56,6 +56,9 @@ units = st.radio("Select Units", ["Metric", "Imperial"])
 unit_conversion_factor = 1.0
 if units == "Imperial":
     unit_conversion_factor = 25.4
+    cutting_speed_conversion_factor = 3.281  # Convert m/min to ft/min
+else:
+    cutting_speed_conversion_factor = 1.0
 
 with tab1:
     st.header("Basic Cutting Parameter Calculator")
@@ -64,12 +67,12 @@ with tab1:
     operation = st.selectbox("Select Operation", ["Milling", "Turning", "Drilling", "Tapping"], key="basic_operation")
     selected_material = st.selectbox("Select Material", list(materials.keys()))
     selected_tool_material = st.selectbox("Select Tool Material", list(tool_materials.keys()))
-    cutter_diameter = st.number_input("Enter Cutter Diameter (mm)", min_value=1.0, value=10.0) * unit_conversion_factor
-    feed_per_tooth = st.number_input("Enter Feed per Tooth (mm)", min_value=0.01, value=0.1) * unit_conversion_factor
+    cutter_diameter = st.number_input("Enter Cutter Diameter ({'mm' if units == 'Metric' else 'in'})", min_value=1.0, value=10.0) * unit_conversion_factor
+    feed_per_tooth = st.number_input("Enter Feed per Tooth ({'mm' if units == 'Metric' else 'in'})", min_value=0.01, value=0.1) * unit_conversion_factor
     number_of_teeth = st.number_input("Enter Number of Teeth on Cutter", min_value=1, value=4)
 
     # Calculations
-    cutting_speed = materials[selected_material]["cutting_speed"] * tool_materials[selected_tool_material]
+    cutting_speed = materials[selected_material]["cutting_speed"] * tool_materials[selected_tool_material] * cutting_speed_conversion_factor
     rpm = calculate_rpm(cutting_speed, cutter_diameter)
     feed_rate = calculate_feed_rate(feed_per_tooth, number_of_teeth, rpm)
 
@@ -86,16 +89,16 @@ with tab2:
     operation = st.selectbox("Select Operation", ["Milling", "Turning", "Drilling", "Tapping"], key="adv_operation")
     selected_material = st.selectbox("Select Material", list(materials.keys()), key="adv_material")
     selected_tool_material = st.selectbox("Select Tool Material", list(tool_materials.keys()), key="adv_tool_material")
-    cutter_diameter = st.number_input("Enter Cutter Diameter (mm)", min_value=1.0, value=10.0, key="adv_cutter_diameter") * unit_conversion_factor
+    cutter_diameter = st.number_input("Enter Cutter Diameter ({'mm' if units == 'Metric' else 'in'})", min_value=1.0, value=10.0, key="adv_cutter_diameter") * unit_conversion_factor
     number_of_teeth = st.number_input("Enter Number of Teeth on Cutter", min_value=1, value=4, key="adv_number_of_teeth")
-    depth_of_cut = st.number_input("Enter Depth of Cut (mm)", min_value=0.1, value=2.0, key="adv_depth_of_cut") * unit_conversion_factor
-    width_of_cut = st.number_input("Enter Width of Cut (mm)", min_value=0.1, value=5.0, key="adv_width_of_cut") * unit_conversion_factor
-    feed_per_tooth = st.number_input("Enter Feed per Tooth (mm)", min_value=0.01, value=0.1, key="adv_feed_per_tooth") * unit_conversion_factor
+    depth_of_cut = st.number_input("Enter Depth of Cut ({'mm' if units == 'Metric' else 'in'})", min_value=0.1, value=2.0, key="adv_depth_of_cut") * unit_conversion_factor
+    width_of_cut = st.number_input("Enter Width of Cut ({'mm' if units == 'Metric' else 'in'})", min_value=0.1, value=5.0, key="adv_width_of_cut") * unit_conversion_factor
+    feed_per_tooth = st.number_input("Enter Feed per Tooth ({'mm' if units == 'Metric' else 'in'})", min_value=0.01, value=0.1, key="adv_feed_per_tooth") * unit_conversion_factor
     tool_life_n = st.number_input("Enter Tool Life Exponent (n)", min_value=0.1, value=0.25, key="adv_tool_life_n")
     tool_life_c = st.number_input("Enter Tool Life Constant (C)", min_value=1.0, value=300.0, key="adv_tool_life_c")
 
     # Calculations
-    cutting_speed = materials[selected_material]["cutting_speed"] * tool_materials[selected_tool_material]
+    cutting_speed = materials[selected_material]["cutting_speed"] * tool_materials[selected_tool_material] * cutting_speed_conversion_factor
     rpm = calculate_rpm(cutting_speed, cutter_diameter)
     feed_rate = calculate_feed_rate(feed_per_tooth, number_of_teeth, rpm)
     tool_life = calculate_tool_life(cutting_speed, tool_life_n, tool_life_c)
