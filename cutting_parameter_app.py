@@ -41,6 +41,9 @@ def calculate_torque(cutting_force, tool_diameter):
 def calculate_heat_generation(cutting_speed, feed_rate, cutting_force):
     return 0.5 * cutting_speed * feed_rate * cutting_force
 
+def calculate_tool_wear(cutting_speed, feed_rate, time):
+    return 0.001 * cutting_speed * feed_rate * time  # Simplified model for tool wear over time
+
 # Streamlit UI
 st.title("Cutting Parameter Calculator")
 
@@ -181,12 +184,48 @@ with tab2:
                 mime="application/pdf"
             )
 
-    # Process Simulation (Basic)
+    # Process Simulation (Enhanced)
     if st.button("Run Process Simulation"):
         st.subheader("Process Simulation")
+        simulation_time = st.slider("Select Simulation Time (minutes)", min_value=1, max_value=60, value=10)
         st.write("Simulating the cutting process...")
-        for i in range(1, 6):
-            st.write(f"Step {i}: Cutting at speed {cutting_speed * i} m/min")
+
+        time_steps = np.linspace(0, simulation_time, num=10)
+        cutting_forces = []
+        tool_wear_values = []
+        temperatures = []
+
+        for t in time_steps:
+            cutting_force = calculate_cutting_force(materials[selected_material]["tensile_strength"], depth_of_cut, cutter_diameter)
+            cutting_forces.append(cutting_force)
+            tool_wear = calculate_tool_wear(cutting_speed, feed_rate, t)
+            tool_wear_values.append(tool_wear)
+            temperature = calculate_heat_generation(cutting_speed, feed_rate, cutting_force) / 1000  # Simplified temperature estimate
+            temperatures.append(temperature)
+            st.write(f"Time: {t:.1f} min, Cutting Force: {cutting_force:.2f} N, Tool Wear: {tool_wear:.2f} mm, Temperature: {temperature:.2f} °C")
+
+        # Plotting Simulation Results
+        st.subheader("Simulation Results")
+        fig, ax = plt.subplots(3, 1, figsize=(10, 15))
+        ax[0].plot(time_steps, cutting_forces, label='Cutting Force (N)', color='b')
+        ax[0].set_xlabel('Time (minutes)')
+        ax[0].set_ylabel('Cutting Force (N)')
+        ax[0].set_title('Cutting Force vs Time')
+        ax[0].legend()
+
+        ax[1].plot(time_steps, tool_wear_values, label='Tool Wear (mm)', color='r')
+        ax[1].set_xlabel('Time (minutes)')
+        ax[1].set_ylabel('Tool Wear (mm)')
+        ax[1].set_title('Tool Wear vs Time')
+        ax[1].legend()
+
+        ax[2].plot(time_steps, temperatures, label='Temperature (°C)', color='g')
+        ax[2].set_xlabel('Time (minutes)')
+        ax[2].set_ylabel('Temperature (°C)')
+        ax[2].set_title('Temperature vs Time')
+        ax[2].legend()
+
+        st.pyplot(fig)
         st.write("Simulation completed.")
 
 st.write("\n---\n")
