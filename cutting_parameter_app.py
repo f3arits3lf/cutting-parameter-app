@@ -138,15 +138,13 @@ with tab2:
     machine_hour_rate = st.number_input("Enter Machine Hour Rate ($/hour)", min_value=10.0, value=50.0, key="adv_machine_hour_rate")
     tool_cost = st.number_input("Enter Tool Cost ($)", min_value=1.0, value=100.0, key="adv_tool_cost")
     material_cost = st.number_input("Enter Material Cost ($/kg)", min_value=0.1, value=2.0, key="adv_material_cost")
-    labor_cost_per_hour = st.number_input("Enter Labor Cost ($/hour)", min_value=10.0, value=30.0, key="adv_labor_cost")
-    energy_cost_per_hour = st.number_input("Enter Energy Cost ($/hour)", min_value=1.0, value=5.0, key="adv_energy_cost")
     
     if feed_rate != 0:
         cycle_time = (depth_of_cut / feed_rate) * 60  # in minutes
     else:
         cycle_time = float('inf')  # Handle as infinite or prompt an error
 
-    estimated_cost = ((cycle_time / 60) * (machine_hour_rate + labor_cost_per_hour + energy_cost_per_hour)) + tool_cost + material_cost
+    estimated_cost = ((cycle_time / 60) * machine_hour_rate) + tool_cost + material_cost
     st.write(f"**Estimated Cost of Machining ($):** {estimated_cost:.2f}")
 
     # Material Database Expansion
