@@ -5,17 +5,21 @@ import numpy as np
 from fpdf import FPDF
 import json
 
-# Material and Tooling Data
+# Material and Tooling Data (Updated with Real-World Values)
 materials = {
-    "Aluminum 6061": {"cutting_speed": 300, "machinability": 100, "tensile_strength": 310, "hardness": 95},
-    "Steel 1045": {"cutting_speed": 100, "machinability": 60, "tensile_strength": 585, "hardness": 170},
-    "Titanium": {"cutting_speed": 60, "machinability": 30, "tensile_strength": 900, "hardness": 300},
+    "Aluminum 6061": {"cutting_speed": 300, "machinability": 250, "tensile_strength": 310, "hardness": 95},
+    "Steel 1045": {"cutting_speed": 90, "machinability": 140, "tensile_strength": 585, "hardness": 170},
+    "Titanium Grade 5 (Ti-6Al-4V)": {"cutting_speed": 50, "machinability": 26, "tensile_strength": 950, "hardness": 349},
+    "Stainless Steel 304": {"cutting_speed": 70, "machinability": 45, "tensile_strength": 505, "hardness": 201},
+    "Cast Iron": {"cutting_speed": 120, "machinability": 180, "tensile_strength": 220, "hardness": 180}
 }
 
 tool_materials = {
     "HSS": 1.0,
     "Carbide": 2.5,
-    "Ceramic": 5.0
+    "Ceramic": 5.0,
+    "CBN": 7.0,
+    "Diamond": 10.0
 }
 
 # Calculation Functions
@@ -118,6 +122,12 @@ elif material_expansion == "Export Materials":
     materials_df = pd.DataFrame(materials).transpose()
     materials_df.to_csv("materials_export.csv")
     st.sidebar.write("Materials exported to materials_export.csv")
+    st.sidebar.download_button(
+        label="Download Materials Data",
+        data=materials_df.to_csv(index=False),
+        file_name="materials_export.csv",
+        mime="text/csv"
+    )
 
 # Detailed Reporting
 if st.button("Generate PDF Report"):
@@ -134,8 +144,16 @@ if st.button("Generate PDF Report"):
     pdf.cell(200, 10, txt=f"Cutting Force (N): {cutting_force:.2f}", ln=True)
     pdf.cell(200, 10, txt=f"Torque (Nm): {torque:.2f}", ln=True)
     pdf.cell(200, 10, txt=f"Heat Generation (J/s): {heat_generation:.2f}", ln=True)
-    pdf.output("cutting_parameter_report.pdf")
+    pdf_file = "cutting_parameter_report.pdf"
+    pdf.output(pdf_file)
     st.write("PDF Report generated: cutting_parameter_report.pdf")
+    with open(pdf_file, "rb") as f:
+        st.download_button(
+            label="Download PDF Report",
+            data=f,
+            file_name=pdf_file,
+            mime="application/pdf"
+        )
 
 # Process Simulation (Basic)
 if st.button("Run Process Simulation"):
