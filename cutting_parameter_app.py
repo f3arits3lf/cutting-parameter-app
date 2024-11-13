@@ -51,6 +51,7 @@ with tab1:
     st.header("Basic Cutting Parameter Calculator")
     
     # User Inputs
+    operation = st.selectbox("Select Operation", ["Milling", "Turning", "Drilling", "Tapping"], key="basic_operation")
     selected_material = st.selectbox("Select Material", list(materials.keys()))
     selected_tool_material = st.selectbox("Select Tool Material", list(tool_materials.keys()))
     cutter_diameter = st.number_input("Enter Cutter Diameter (mm)", min_value=1.0, value=10.0)
@@ -64,6 +65,7 @@ with tab1:
 
     # Display Results
     st.subheader("Calculated Parameters")
+    st.write(f"**Operation:** {operation}")
     st.write(f"**Spindle Speed (RPM):** {rpm:.2f}")
     st.write(f"**Feed Rate (mm/min):** {feed_rate:.2f}")
 
@@ -71,6 +73,7 @@ with tab2:
     st.header("Advanced Cutting Parameter Calculator")
 
     # User Inputs
+    operation = st.selectbox("Select Operation", ["Milling", "Turning", "Drilling", "Tapping"], key="adv_operation")
     selected_material = st.selectbox("Select Material", list(materials.keys()), key="adv_material")
     selected_tool_material = st.selectbox("Select Tool Material", list(tool_materials.keys()), key="adv_tool_material")
     cutter_diameter = st.number_input("Enter Cutter Diameter (mm)", min_value=1.0, value=10.0, key="adv_cutter_diameter")
@@ -91,6 +94,7 @@ with tab2:
 
     # Display Results
     st.subheader("Calculated Parameters")
+    st.write(f"**Operation:** {operation}")
     st.write(f"**Spindle Speed (RPM):** {rpm:.2f}")
     st.write(f"**Feed Rate (mm/min):** {feed_rate:.2f}")
     st.write(f"**Estimated Tool Life (minutes):** {tool_life:.2f}")
@@ -157,6 +161,7 @@ with tab2:
         pdf.add_page()
         pdf.set_font("Arial", size=12)
         pdf.cell(200, 10, txt="Cutting Parameter Report", ln=True, align='C')
+        pdf.cell(200, 10, txt=f"Operation: {operation}", ln=True)
         pdf.cell(200, 10, txt=f"Material: {selected_material}", ln=True)
         pdf.cell(200, 10, txt=f"Tool Material: {selected_tool_material}", ln=True)
         pdf.cell(200, 10, txt=f"Spindle Speed (RPM): {rpm:.2f}", ln=True)
