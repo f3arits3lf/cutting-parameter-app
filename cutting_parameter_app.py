@@ -118,6 +118,7 @@ with tab2:
     plt.ylabel("Tool Life (minutes)")
     plt.title("Tool Life vs Cutting Speed")
     st.pyplot(plt)
+    plt.close()
 
     # Recommendations for Cooling/Lubrication
     st.subheader("Recommendations for Cooling/Lubrication")
@@ -131,7 +132,11 @@ with tab2:
     machine_hour_rate = st.number_input("Enter Machine Hour Rate ($/hour)", min_value=10.0, value=50.0, key="adv_machine_hour_rate")
     tool_cost = st.number_input("Enter Tool Cost ($)", min_value=1.0, value=100.0, key="adv_tool_cost")
     material_cost = st.number_input("Enter Material Cost ($/kg)", min_value=0.1, value=2.0, key="adv_material_cost")
-    cycle_time = (depth_of_cut / feed_rate) * 60  # in minutes
+    
+    if feed_rate != 0:
+        cycle_time = (depth_of_cut / feed_rate) * 60  # in minutes
+    else:
+        cycle_time = float('inf')  # Handle as infinite or prompt an error
 
     estimated_cost = (cycle_time / 60) * machine_hour_rate + tool_cost + material_cost
     st.write(f"**Estimated Cost of Machining ($):** {estimated_cost:.2f}")
@@ -145,8 +150,11 @@ with tab2:
     elif material_expansion == "Import Materials":
         uploaded_file = st.file_uploader("Upload Material Data (CSV)", type=["csv"], key="adv_upload_materials")
         if uploaded_file is not None:
-            imported_materials = pd.read_csv(uploaded_file)
-            st.write(imported_materials)
+            try:
+                imported_materials = pd.read_csv(uploaded_file)
+                st.write(imported_materials)
+            except Exception as e:
+                st.error(f"An error occurred while loading the file: {e}")
     elif material_expansion == "Export Materials":
         materials_df = pd.DataFrame(materials).transpose()
         materials_df.to_csv("materials_export.csv")
@@ -183,50 +191,6 @@ with tab2:
                 file_name=pdf_file,
                 mime="application/pdf"
             )
-
-    # Process Simulation (Enhanced)
-    if st.button("Run Process Simulation"):
-        st.subheader("Process Simulation")
-        simulation_time = st.slider("Select Simulation Time (minutes)", min_value=1, max_value=60, value=10)
-        st.write("Simulating the cutting process...")
-
-        time_steps = np.linspace(0, simulation_time, num=10)
-        cutting_forces = []
-        tool_wear_values = []
-        temperatures = []
-
-        for t in time_steps:
-            cutting_force = calculate_cutting_force(materials[selected_material]["tensile_strength"], depth_of_cut, cutter_diameter)
-            cutting_forces.append(cutting_force)
-            tool_wear = calculate_tool_wear(cutting_speed, feed_rate, t)
-            tool_wear_values.append(tool_wear)
-            temperature = calculate_heat_generation(cutting_speed, feed_rate, cutting_force) / 1000  # Simplified temperature estimate
-            temperatures.append(temperature)
-            st.write(f"Time: {t:.1f} min, Cutting Force: {cutting_force:.2f} N, Tool Wear: {tool_wear:.2f} mm, Temperature: {temperature:.2f} °C")
-
-        # Plotting Simulation Results
-        st.subheader("Simulation Results")
-        fig, ax = plt.subplots(3, 1, figsize=(10, 15))
-        ax[0].plot(time_steps, cutting_forces, label='Cutting Force (N)', color='b')
-        ax[0].set_xlabel('Time (minutes)')
-        ax[0].set_ylabel('Cutting Force (N)')
-        ax[0].set_title('Cutting Force vs Time')
-        ax[0].legend()
-
-        ax[1].plot(time_steps, tool_wear_values, label='Tool Wear (mm)', color='r')
-        ax[1].set_xlabel('Time (minutes)')
-        ax[1].set_ylabel('Tool Wear (mm)')
-        ax[1].set_title('Tool Wear vs Time')
-        ax[1].legend()
-
-        ax[2].plot(time_steps, temperatures, label='Temperature (°C)', color='g')
-        ax[2].set_xlabel('Time (minutes)')
-        ax[2].set_ylabel('Temperature (°C)')
-        ax[2].set_title('Temperature vs Time')
-        ax[2].legend()
-
-        st.pyplot(fig)
-        st.write("Simulation completed.")
 
 st.write("\n---\n")
 st.write("**Note:** This is a prototype tool and should be used with caution. Always verify the calculations with industry standards and safety guidelines before applying them in actual machining operations.")
