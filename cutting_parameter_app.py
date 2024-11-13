@@ -42,11 +42,13 @@ def calculate_heat_generation(cutting_speed, feed_rate, cutting_force):
     return 0.5 * cutting_speed * feed_rate * cutting_force
 
 # Streamlit UI
-st.sidebar.title("Cutting Parameter Calculator")
-mode = st.sidebar.radio("Select Mode", ["Basic", "Advanced"])
+st.title("Cutting Parameter Calculator")
 
-if mode == "Basic":
-    st.title("Basic Cutting Parameter Calculator")
+# Tabs for Basic and Advanced Modes
+tab1, tab2 = st.tabs(["Basic", "Advanced"])
+
+with tab1:
+    st.header("Basic Cutting Parameter Calculator")
     
     # User Inputs
     selected_material = st.selectbox("Select Material", list(materials.keys()))
@@ -65,16 +67,16 @@ if mode == "Basic":
     st.write(f"**Spindle Speed (RPM):** {rpm:.2f}")
     st.write(f"**Feed Rate (mm/min):** {feed_rate:.2f}")
 
-else:
-    st.title("Advanced Cutting Parameter Calculator")
+with tab2:
+    st.header("Advanced Cutting Parameter Calculator")
 
     # User Inputs
-    selected_material = st.sidebar.selectbox("Select Material", list(materials.keys()))
-    selected_tool_material = st.sidebar.selectbox("Select Tool Material", list(tool_materials.keys()))
-    cutter_diameter = st.sidebar.number_input("Enter Cutter Diameter (mm)", min_value=1.0, value=10.0)
-    number_of_teeth = st.sidebar.number_input("Enter Number of Teeth on Cutter", min_value=1, value=4)
-    depth_of_cut = st.sidebar.number_input("Enter Depth of Cut (mm)", min_value=0.1, value=2.0)
-    feed_per_tooth = st.sidebar.number_input("Enter Feed per Tooth (mm)", min_value=0.01, value=0.1)
+    selected_material = st.selectbox("Select Material", list(materials.keys()), key="adv_material")
+    selected_tool_material = st.selectbox("Select Tool Material", list(tool_materials.keys()), key="adv_tool_material")
+    cutter_diameter = st.number_input("Enter Cutter Diameter (mm)", min_value=1.0, value=10.0, key="adv_cutter_diameter")
+    number_of_teeth = st.number_input("Enter Number of Teeth on Cutter", min_value=1, value=4, key="adv_number_of_teeth")
+    depth_of_cut = st.number_input("Enter Depth of Cut (mm)", min_value=0.1, value=2.0, key="adv_depth_of_cut")
+    feed_per_tooth = st.number_input("Enter Feed per Tooth (mm)", min_value=0.01, value=0.1, key="adv_feed_per_tooth")
 
     # Calculations
     cutting_speed = materials[selected_material]["cutting_speed"] * tool_materials[selected_tool_material]
@@ -119,30 +121,30 @@ else:
 
     # Cost Estimation Tool
     st.subheader("Cost Estimation")
-    machine_hour_rate = st.sidebar.number_input("Enter Machine Hour Rate ($/hour)", min_value=10.0, value=50.0)
-    tool_cost = st.sidebar.number_input("Enter Tool Cost ($)", min_value=1.0, value=100.0)
-    material_cost = st.sidebar.number_input("Enter Material Cost ($/kg)", min_value=0.1, value=2.0)
+    machine_hour_rate = st.number_input("Enter Machine Hour Rate ($/hour)", min_value=10.0, value=50.0, key="adv_machine_hour_rate")
+    tool_cost = st.number_input("Enter Tool Cost ($)", min_value=1.0, value=100.0, key="adv_tool_cost")
+    material_cost = st.number_input("Enter Material Cost ($/kg)", min_value=0.1, value=2.0, key="adv_material_cost")
     cycle_time = (depth_of_cut / feed_rate) * 60  # in minutes
 
     estimated_cost = (cycle_time / 60) * machine_hour_rate + tool_cost + material_cost
     st.write(f"**Estimated Cost of Machining ($):** {estimated_cost:.2f}")
 
     # Material Database Expansion
-    st.sidebar.subheader("Material Database Management")
-    material_expansion = st.sidebar.radio("Manage Material Data", ["View Materials", "Import Materials", "Export Materials"])
+    st.subheader("Material Database Management")
+    material_expansion = st.radio("Manage Material Data", ["View Materials", "Import Materials", "Export Materials"], key="adv_material_expansion")
 
     if material_expansion == "View Materials":
-        st.sidebar.write(pd.DataFrame(materials).transpose())
+        st.write(pd.DataFrame(materials).transpose())
     elif material_expansion == "Import Materials":
-        uploaded_file = st.sidebar.file_uploader("Upload Material Data (CSV)", type=["csv"])
+        uploaded_file = st.file_uploader("Upload Material Data (CSV)", type=["csv"], key="adv_upload_materials")
         if uploaded_file is not None:
             imported_materials = pd.read_csv(uploaded_file)
-            st.sidebar.write(imported_materials)
+            st.write(imported_materials)
     elif material_expansion == "Export Materials":
         materials_df = pd.DataFrame(materials).transpose()
         materials_df.to_csv("materials_export.csv")
-        st.sidebar.write("Materials exported to materials_export.csv")
-        st.sidebar.download_button(
+        st.write("Materials exported to materials_export.csv")
+        st.download_button(
             label="Download Materials Data",
             data=materials_df.to_csv(index=False),
             file_name="materials_export.csv",
@@ -155,7 +157,6 @@ else:
         pdf.add_page()
         pdf.set_font("Arial", size=12)
         pdf.cell(200, 10, txt="Cutting Parameter Report", ln=True, align='C')
-        pdf.cell(200, 10, txt=f"Operation: {operation}", ln=True)
         pdf.cell(200, 10, txt=f"Material: {selected_material}", ln=True)
         pdf.cell(200, 10, txt=f"Tool Material: {selected_tool_material}", ln=True)
         pdf.cell(200, 10, txt=f"Spindle Speed (RPM): {rpm:.2f}", ln=True)
