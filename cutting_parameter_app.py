@@ -51,15 +51,6 @@ st.title("Cutting Parameter Calculator")
 # Tabs for Basic and Advanced Modes
 tab1, tab2 = st.tabs(["Basic", "Advanced"])
 
-# Unit Selection
-units = st.radio("Select Units", ["Metric", "Imperial"])
-if units == "Imperial":
-    unit_conversion_factor = 25.4  # Convert inches to millimeters for internal calculations
-    cutting_speed_conversion_factor = 0.3048  # Convert ft/min to m/min for internal calculations
-else:
-    unit_conversion_factor = 1.0
-    cutting_speed_conversion_factor = 1.0
-
 with tab1:
     st.header("Basic Cutting Parameter Calculator")
     
@@ -67,8 +58,8 @@ with tab1:
     operation = st.selectbox("Select Operation", ["Milling", "Turning", "Drilling", "Tapping"], key="basic_operation")
     selected_material = st.selectbox("Select Material", list(materials.keys()))
     selected_tool_material = st.selectbox("Select Tool Material", list(tool_materials.keys()))
-    cutter_diameter = st.number_input(f"Enter Cutter Diameter ({'mm' if units == 'Metric' else 'in'})", min_value=1.0, value=10.0) * unit_conversion_factor
-    feed_per_tooth = st.number_input(f"Enter Feed per Tooth ({'mm' if units == 'Metric' else 'in'})", min_value=0.01, value=0.1) * unit_conversion_factor
+    cutter_diameter = st.number_input("Enter Cutter Diameter (mm)", min_value=1.0, value=10.0)
+    feed_per_tooth = st.number_input("Enter Feed per Tooth (mm)", min_value=0.01, value=0.1)
     number_of_teeth = st.number_input("Enter Number of Teeth on Cutter", min_value=1, value=4)
 
     # Calculations
@@ -80,7 +71,7 @@ with tab1:
     st.subheader("Calculated Parameters")
     st.write(f"**Operation:** {operation}")
     st.write(f"**Spindle Speed (RPM):** {rpm:.2f}")
-    st.write(f"**Feed Rate ({'mm/min' if units == 'Metric' else 'in/min'}):** {feed_rate:.2f}")
+    st.write(f"**Feed Rate (mm/min):** {feed_rate:.2f}")
 
 with tab2:
     st.header("Advanced Cutting Parameter Calculator")
@@ -89,11 +80,11 @@ with tab2:
     operation = st.selectbox("Select Operation", ["Milling", "Turning", "Drilling", "Tapping"], key="adv_operation")
     selected_material = st.selectbox("Select Material", list(materials.keys()), key="adv_material")
     selected_tool_material = st.selectbox("Select Tool Material", list(tool_materials.keys()), key="adv_tool_material")
-    cutter_diameter = st.number_input(f"Enter Cutter Diameter ({'mm' if units == 'Metric' else 'in'})", min_value=1.0, value=10.0, key="adv_cutter_diameter") * unit_conversion_factor
+    cutter_diameter = st.number_input("Enter Cutter Diameter (mm)", min_value=1.0, value=10.0, key="adv_cutter_diameter")
     number_of_teeth = st.number_input("Enter Number of Teeth on Cutter", min_value=1, value=4, key="adv_number_of_teeth")
-    depth_of_cut = st.number_input(f"Enter Depth of Cut ({'mm' if units == 'Metric' else 'in'})", min_value=0.1, value=2.0, key="adv_depth_of_cut") * unit_conversion_factor
-    width_of_cut = st.number_input(f"Enter Width of Cut ({'mm' if units == 'Metric' else 'in'})", min_value=0.1, value=5.0, key="adv_width_of_cut") * unit_conversion_factor
-    feed_per_tooth = st.number_input(f"Enter Feed per Tooth ({'mm' if units == 'Metric' else 'in'})", min_value=0.01, value=0.1, key="adv_feed_per_tooth") * unit_conversion_factor
+    depth_of_cut = st.number_input("Enter Depth of Cut (mm)", min_value=0.1, value=2.0, key="adv_depth_of_cut")
+    width_of_cut = st.number_input("Enter Width of Cut (mm)", min_value=0.1, value=5.0, key="adv_width_of_cut")
+    feed_per_tooth = st.number_input("Enter Feed per Tooth (mm)", min_value=0.01, value=0.1, key="adv_feed_per_tooth")
     tool_life_n = st.number_input("Enter Tool Life Exponent (n)", min_value=0.1, value=0.25, key="adv_tool_life_n")
     tool_life_c = st.number_input("Enter Tool Life Constant (C)", min_value=1.0, value=300.0, key="adv_tool_life_c")
 
@@ -112,7 +103,7 @@ with tab2:
     st.subheader("Calculated Parameters")
     st.write(f"**Operation:** {operation}")
     st.write(f"**Spindle Speed (RPM):** {rpm:.2f}")
-    st.write(f"**Feed Rate ({'mm/min' if units == 'Metric' else 'in/min'}):** {feed_rate:.2f}")
+    st.write(f"**Feed Rate (mm/min):** {feed_rate:.2f}")
     st.write(f"**Estimated Tool Life (minutes):** {tool_life:.2f}")
 
     st.subheader("Advanced Calculations")
@@ -193,7 +184,7 @@ with tab2:
         pdf.cell(200, 10, txt=f"Material: {selected_material}", ln=True)
         pdf.cell(200, 10, txt=f"Tool Material: {selected_tool_material}", ln=True)
         pdf.cell(200, 10, txt=f"Spindle Speed (RPM): {rpm:.2f}", ln=True)
-        pdf.cell(200, 10, txt=f"Feed Rate ({'mm/min' if units == 'Metric' else 'in/min'}): {feed_rate:.2f}", ln=True)
+        pdf.cell(200, 10, txt=f"Feed Rate (mm/min): {feed_rate:.2f}", ln=True)
         pdf.cell(200, 10, txt=f"Estimated Tool Life (minutes): {tool_life:.2f}", ln=True)
         pdf.cell(200, 10, txt=f"Cutting Force (N): {cutting_force:.2f}", ln=True)
         pdf.cell(200, 10, txt=f"Torque (Nm): {torque:.2f}", ln=True)
