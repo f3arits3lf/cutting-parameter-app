@@ -58,7 +58,7 @@ feed_per_tooth = st.sidebar.number_input("Enter Feed per Tooth (mm)", min_value=
 cutting_speed = materials[selected_material]["cutting_speed"] * tool_materials[selected_tool_material]
 rpm = calculate_rpm(cutting_speed, cutter_diameter)
 feed_rate = calculate_feed_rate(feed_per_tooth, number_of_teeth, rpm)
-tool_life = calculate_tool_life(cutting_speed, materials[selected_material]["machinability"])
+tool_life = calculate_tool_life(cutting_speed, materials[selected_material]["machinability"]) * 60  # Convert hours to minutes
 
 # Advanced Calculations
 cutting_force = calculate_cutting_force(materials[selected_material]["tensile_strength"], depth_of_cut, cutter_diameter)
@@ -71,7 +71,7 @@ st.title(f"{operation} Parameters")
 st.subheader("Calculated Parameters")
 st.write(f"**Spindle Speed (RPM):** {rpm:.2f}")
 st.write(f"**Feed Rate (mm/min):** {feed_rate:.2f}")
-st.write(f"**Estimated Tool Life (hours):** {tool_life:.2f}")
+st.write(f"**Estimated Tool Life (minutes):** {tool_life:.2f}")
 
 st.subheader("Advanced Calculations")
 st.write(f"**Cutting Force (N):** {cutting_force:.2f}")
@@ -81,12 +81,12 @@ st.write(f"**Heat Generation (J/s):** {heat_generation:.2f}")
 # Graph: Tool Life vs Cutting Speed
 st.subheader("Tool Life vs Cutting Speed")
 cutting_speeds = [cutting_speed * i for i in range(1, 6)]
-tool_lives = [calculate_tool_life(cs, materials[selected_material]["machinability"]) for cs in cutting_speeds]
+tool_lives = [calculate_tool_life(cs, materials[selected_material]["machinability"]) * 60 for cs in cutting_speeds]  # Convert hours to minutes
 
 plt.figure(figsize=(10, 5))
 plt.plot(cutting_speeds, tool_lives, marker='o')
 plt.xlabel("Cutting Speed (m/min)")
-plt.ylabel("Tool Life (hours)")
+plt.ylabel("Tool Life (minutes)")
 plt.title("Tool Life vs Cutting Speed")
 st.pyplot(plt)
 
@@ -140,7 +140,7 @@ if st.button("Generate PDF Report"):
     pdf.cell(200, 10, txt=f"Tool Material: {selected_tool_material}", ln=True)
     pdf.cell(200, 10, txt=f"Spindle Speed (RPM): {rpm:.2f}", ln=True)
     pdf.cell(200, 10, txt=f"Feed Rate (mm/min): {feed_rate:.2f}", ln=True)
-    pdf.cell(200, 10, txt=f"Estimated Tool Life (hours): {tool_life:.2f}", ln=True)
+    pdf.cell(200, 10, txt=f"Estimated Tool Life (minutes): {tool_life:.2f}", ln=True)
     pdf.cell(200, 10, txt=f"Cutting Force (N): {cutting_force:.2f}", ln=True)
     pdf.cell(200, 10, txt=f"Torque (Nm): {torque:.2f}", ln=True)
     pdf.cell(200, 10, txt=f"Heat Generation (J/s): {heat_generation:.2f}", ln=True)
